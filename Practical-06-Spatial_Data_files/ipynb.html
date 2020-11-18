@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<!-- saved from url=(0518)https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&nwo=jreades%2Fi2p&path=practicals%2FPractical-06-Spatial_Data.ipynb&repository_id=292512340&repository_type=Repository#7f18ab4a-2ba2-4c7b-a823-44c6edd49cd1 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Render</title>
+  <meta name="referrer" content="never">
+    <script src="./ipynb-64c69809b97c69cf698a.js.下载" type="text/javascript"></script><link rel="stylesheet" href="./ipynb-64c69809b97c69cf698a.css">
+
+
+</head>
+<body class="" data-render-url="https://render.githubusercontent.com" data-github-hostname="github.com" data-client-timeout-attempts="30">
+  <div class="render-shell js-render-shell" data-document-nwo="jreades/i2p" data-document-commit="6884494b03b3e32fc35508fa42131f34a765cd92" data-document-path="practicals/Practical-06-Spatial_Data.ipynb" data-file="https://github-render.s3.amazonaws.com/prod/bf05d0418534338b83ea0fe016195cb38057c90c0f1bb72c55ba4b6532bcfaa3-render.html?X-Amz-Expires=65&amp;X-Amz-Date=20201118T083454Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAJILR36AMCOMBK3MQ%2F20201118%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=0f5c4fb3d59f82b35af11114b8b350a107733d198b0c13663138587d4c6320d3" data-meta="https://github-render.s3.amazonaws.com/prod/bf05d0418534338b83ea0fe016195cb38057c90c0f1bb72c55ba4b6532bcfaa3-meta.json?X-Amz-Expires=65&amp;X-Amz-Date=20201118T083454Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAJILR36AMCOMBK3MQ%2F20201118%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=f269cb71630b4f50f3c047ccc1e74ca9c64f1f152ee44446259138b98b0467b0" data-no-external-render="false">
+    
+
+<div class="render-info">
+  <div class="js-viewer-health render-health is-viewer-good">
+    <span class="symbol">⊖</span>
+    <span class="js-message message">Everything running smoothly!</span>
+  </div>
+</div>
+
+<div id="notebook" class="js-html">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div>
+    <h1>Practical 5: Spatial Data</h1>
+    <h2>Getting to grips with Geo-Data using Geopandas</h2>
+</div>
+<div><img width="100" src="./68747470733a2f2f6769746875622e636f6d2f6a7265616465732f6932702f7261772f6d61737465722f696d672f636173615f6c6f676f2e6a7067" data-canonical-src="https://github.com/jreades/i2p/raw/master/img/casa_logo.jpg"></div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div>
+<i>Note</i>: You should download this notebook from GitHub and then save it to your own copy of the repository. I'd suggest adding it (<tt>git add Practical-...</tt>) right away and then committing (<tt>git commit -m "Some message"</tt>). Do this again at the end of the class and you'll have a record of everything you did, then you can <tt>git push</tt> it to GitHub.</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>Preamble<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Preamble">¶</a>
+</h2>
+<div>
+<i>Hint</i>: It makes life a lot easier if you gather all of the library import commands and configuration information (here having to do with `matplotlib`) in the first exectuable code block in a notebook or script. That way it's easy for you for others to see what what it is necessary to have installed before getting started!.</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="k">as</span> <span class="nn">cm</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>1. Reading Geo-Data<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#1.-Reading-Geo-Data">¶</a>
+</h2>
+<p>I find GeoPackages to be by far the easiest way to distribute geo-data now: they are a single file (in a database-like format that supports multiple types of data), include the projection information by default, and QGIS can even embed information about rendering style!</p>
+<p>However, we're getting a bit ahead of ourselves; let's start by writing a function (it will be <em>similar</em> to the <code>get_url</code> function in <code>dtools</code>) to download the file to our hard drive and save it there. That way we don't have to keep downloading it week after week. I've set up the basics, but you'll need to Google <a href="https://www.google.com/search?q=python+download+a+remote+file&amp;rlz=1C5CHFA_enGB917GB917&amp;oq=python+download+a+remote+file">download remote file python</a>. If you're not sure about what something in this function does, I'd suggest that you use <code>return</code> statements to short-circuit the processing and <code>print</code> statements to output the various variables that I derive (e.g. <code>print(os.path.split(url.path))</code> and then add <code>[-1]</code> to see what that gives you or <code>print(url)</code> to see what that is!).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 1.1: Add Comments to Function<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-1.1:-Add-Comments-to-Function">¶</a>
+</h4>
+<p>I've used the Numpy-style comments here, but the Google-style also look good in this context. See overview of commenting styles <a href="https://www.datacamp.com/community/tutorials/docstrings-python">on DataCamp</a>.</p>
+<div>
+<i>Hint</i>: Use this as an opportunity to improve your ability to read code and to learn through documentation.</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">get</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+
+<span class="k">def</span> <span class="nf">cache_data</span><span class="p">(</span><span class="n">src</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    
+    <span class="n">url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="c1"># We assume that this is some kind of valid URL </span>
+    <span class="n">fn</span>  <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># Extract the filename</span>
+    <span class="n">dfn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span><span class="n">fn</span><span class="p">)</span> <span class="c1">#&nbsp;Destination filename</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">dfn</span><span class="p">):</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dfn</span><span class="si">}</span><span class="s2"> not found, downloading!"</span><span class="p">)</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">''</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dfn</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">Done downloading..."</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="n">dfn</span><span class="si">}</span><span class="s2"> locally!"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dfn</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 1.2: Read Remote Geo-Data<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-1.2:-Read-Remote-Geo-Data">¶</a>
+</h4>
+<p>Use the function above to download and cache the GeoPackage files found <a href="https://github.com/jreades/i2p/tree/master/data/src">on GitHub</a> for Boroughs, Water, and Greenspace, then pass the output of these to GeoPandas. If you have been having trouble downloading files from GitHub, then use the understanding of the function developed above to download the file manually and place it where this function expects to find it!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ddir</span>  <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">'data'</span><span class="p">,</span><span class="s1">'geo'</span><span class="p">)</span> <span class="c1"># destination directory</span>
+<span class="n">spath</span> <span class="o">=</span> <span class="s1">'https://github.com/jreades/i2p/blob/master/data/src/'</span> <span class="c1"># source path</span>
+
+<span class="n">boros</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span> <span class="n">cache_data</span><span class="p">(</span><span class="n">spath</span><span class="o">+</span><span class="s1">'Boroughs.gpkg?raw=true'</span><span class="p">,</span> <span class="n">ddir</span><span class="p">)</span> <span class="p">)</span>
+<span class="n">water</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span> <span class="n">cache_data</span><span class="p">(</span><span class="n">spath</span><span class="o">+</span><span class="s1">'Water.gpkg?raw=true'</span><span class="p">,</span> <span class="n">ddir</span><span class="p">)</span> <span class="p">)</span>
+<span class="n">green</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span> <span class="n">cache_data</span><span class="p">(</span><span class="n">spath</span><span class="o">+</span><span class="s1">'Greenspace.gpkg?raw=true'</span><span class="p">,</span> <span class="n">ddir</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Done.'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 1.3: Check the Projection<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-1.3:-Check-the-Projection">¶</a>
+</h4>
+<p>Check the projection of each GeoDataFrame using a for loop and the <code>crs</code> attribute.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You should see that all three are in the <a href="https://epsg.io/27700">EPSG:27700 CRS</a> which is a common one for analysis using GB data.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 1.4: Check the Data<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-1.4:-Check-the-Data">¶</a>
+</h4>
+<p>We'll see how you control figure-making more effectively later, but for now let's just see what they look like using plot:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>2. An Introduction to Mapping<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#2.-An-Introduction-to-Mapping">¶</a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>These files all contain polygons, and the adjustments for points are different, but it's worth seeing how you can tweak these before we start combining them. Behind the scenes, GeoPandas is using <code>matplotlib</code> to render the map, so let's play with the colours to get the <em>start</em> of something map-like.</p>
+<p><strong>I'd suggest the following colour scheme</strong> (though anything you like is fine so long as you manipulate the colours):</p>
+<ul>
+<li>The boroughs can have red edges and white fill with a thick edge.</li>
+<li>The water should have no edges and XKCD Lightblue fill.</li>
+<li>The greenspace should have edges and faces specified using different alpha blending levels.</li>
+</ul>
+<p>You will want to look both at <a href="https://geopandas.org/mapping.html">how to make maps in GeoPandas</a> and  at the different ways to <a href="https://matplotlib.org/3.1.1/tutorials/colors/colors.html#specifying-colors">specify colours in Matplotlib</a>. For the greenspace map you are looking for information about tuples... which can have three or four elements.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 2.1: Adjust Borough Display<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-2.1:-Adjust-Borough-Display">¶</a>
+</h4>
+<p>By way of a hint, matplotlib uses <code>edgecolor</code> and <code>facecolor</code> for controlling 'patches' (which is what polygons are considered), but the thicker-than-default line-width is specified differently (you'll need to look this up). So the intention is:</p>
+<ol>
+<li>Thick red borough borders, and </li>
+<li>White fill colour.</li>
+</ol>
+<p>Just to drive home how different this is from R, you can find the answer to question 1 <a href="https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.pyplot.bar.html">on the page for bar plots</a>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">boros</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="err">??</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 2.2: Adjust Water Display<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-2.2:-Adjust-Water-Display">¶</a>
+</h4>
+<p>The process is the same as above, but I'd like you to work out how to specify:</p>
+<ol>
+<li>
+<em>No</em> color for an edge, and </li>
+<li>An XKCD color for the face.</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">water</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="err">??</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 2.3: Adjust Greenspace Display<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-2.3:-Adjust-Greenspace-Display">¶</a>
+</h4>
+<p>The process is <em>also</em> the same as above, but I'd like you to work out how to specify colours and transparency using RGBA (red-green-blue-alpha) tuples. So we're looking for:</p>
+<ol>
+<li>No edge color.</li>
+<li>A partially transparent green specified as a tuple.</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">green</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="err">??</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 2.4 Combining Layers<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-2.4-Combining-Layers">¶</a>
+</h4>
+<div>
+<i>Note</i>: R and Python take <i>very</i> different approaches to plotting. Do <i>not</i> think of Python's output as being 'maps' in the GIS sense, they are composed of 'patches' of color on abstract 'axes' that can use any arbitrary coordinate space. So colours are 'really' triplet (or quadruplet if you have alpha-blending transparency) values in the range 0.0-1.0. Annotations are then added in similarly abstract fashion.</div>
+<p>Now that we've got our layers looking roughly how we want them, it's time to combine them. This is also reliant on <code>matplotlib</code> and basically involves plotting items to <em>shared axes</em> which is done by passing in <code>ax=&lt;axis object&gt;</code> to each <code>plot(...)</code>. By convention, if you only have a single figure (e.g. a single map) then you create an axis object and name it <code>ax</code> so you will see a lot of <code>ax=ax</code> code in graphing libraries, but <code>=ax</code> is just saying 'assign to the axis object that I created'.</p>
+<p>Since the axes are how you control what is shown, see if you can find out by Googling how to set the x- and y-limits on the map so that it shows only London and trims out the much larger area of water that is outside of the Greater London Authority. <strong>As a rough guideline, this has the Easting range 501,000 to 563,000, and the Northing range 155,000 to 202,000.</strong></p>
+<p>You can set these limits before or after you start adding layers to the 'map', but it's probably easier conceptually to add them after with the idea of 'zooming in' on the features of interest. It's also easier to debug since you can start by seeing if you can plot the elements at all, and <em>then</em> add the limits to zoom.</p>
+<p><strong>So the steps are:</strong></p>
+<ol>
+<li>Write the code to plot every image on the same set of axes (I've given you something to get started).</li>
+<li>Google how to set the limits of the map and then use the ranges I've offered above.</li>
+<li>Work out how to change the width of the edges for the boroughs layer. </li>
+<li>Save it somewhere local so that you could, say, load it into a Markdown file!</li>
+</ol>
+<div>
+<i>Hint</i>: this is a first pass at a map, over the next few weeks we'll see how to add things like axis labels and titles to make it more 'map-like'. We don't have quite the built-in functionality of `ggplot` alas, but Python is advancing very quickly in this area. There is even <a href="https://github.com/yhat/ggpy">an implementation of ggplot in Python</a>, but it's functionality is more limited. In fact, there's <a href="https://github.com/has2k1/plotnine">more than one</a>...</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">9</span><span class="p">))</span>
+
+<span class="c1"># Plot all three to the same axes</span>
+
+<span class="c1"># Set the limits</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You may wish for a different look, but here's one version of the output:</p>
+<p><img src="./68747470733a2f2f6769746875622e636f6d2f6a7265616465732f6932702f7261772f6d61737465722f70726163746963616c732f696d672f4d61702d46697273745f506173732e706e67" alt="" data-canonical-src="https://github.com/jreades/i2p/raw/master/practicals/img/Map-First_Pass.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>3. 'Creating' Geo-Data<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#3.-&#39;Creating&#39;-Geo-Data">¶</a>
+</h2>
+<p>Of course, you will also often encounter geo-data that is not yet 'geographically enabled'; the two most frequent contexts for this are:</p>
+<ol>
+<li>The data represents points and is provided with latitude and longitude (or similar) as separate columns in a non-geographic data set.</li>
+<li>The data represents polygons but is provided <em>separately</em> from the polygons themselves and so cannot be shown on a map without being 'joined' to the geography first.</li>
+</ol>
+<p>We'll tackle each of these eventually, but for now we're going to focus on the first option.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 3.1: CSV to Pandas<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-3.1:-CSV-to-Pandas">¶</a>
+</h4>
+<p>Let's re-use our <code>cache_data</code> function to download and save the full InsideAirbnb data set. Again, if you have trouble with downloading from GitHub via code, use your understanding of the function to work out where to save your own copy of this file so that the function works as expected.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ddir</span>  <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">'data'</span><span class="p">,</span><span class="s1">'raw'</span><span class="p">)</span> <span class="c1"># destination directory</span>
+<span class="n">spath</span> <span class="o">=</span> <span class="s1">'https://github.com/jreades/i2p/blob/master/data/src/'</span> <span class="c1"># source path</span>
+
+<span class="c1"># pdf == pandas dataframe</span>
+<span class="n">pdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span> <span class="n">cache_data</span><span class="p">(</span><span class="n">spath</span><span class="o">+</span><span class="s1">'2020-08-24-listings.csv.gz?raw=true'</span><span class="p">,</span> <span class="n">ddir</span><span class="p">),</span>
+    <span class="n">compression</span><span class="o">=</span><span class="s1">'gzip'</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Free up memory (we're going to reload below)</span>
+<span class="k">del</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 3.2: Subsetting and Tidying Data Set<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-3.2:-Subsetting-and-Tidying-Data-Set">¶</a>
+</h4>
+<p>Now that we've downloaded the large file, let's subset only what we need for the purposes of this practical as it will make things run a <em>lot</em> faster.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'id'</span><span class="p">,</span><span class="s1">'listing_url'</span><span class="p">,</span><span class="s1">'price'</span><span class="p">,</span><span class="s1">'latitude'</span><span class="p">,</span><span class="s1">'longitude'</span><span class="p">,</span>
+        <span class="s1">'host_id'</span><span class="p">,</span><span class="s1">'host_since'</span><span class="p">,</span><span class="s1">'property_type'</span><span class="p">,</span><span class="s1">'room_type'</span><span class="p">,</span>
+        <span class="s1">'accommodates'</span><span class="p">,</span><span class="s1">'beds'</span><span class="p">,</span><span class="s1">'bathrooms_text'</span><span class="p">]</span>
+<span class="n">pdf</span>  <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span> <span class="err">??</span> <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pdf now contains </span><span class="si">{</span><span class="n">pdf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows."</span><span class="p">)</span>
+<span class="n">pdf</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Your pandas data frame should contain 74,188 rows and 11 columns.</p>
+<p>Convert the price to a float</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pdf</span><span class="p">[</span><span class="s1">'price'</span><span class="p">]</span> <span class="o">=</span> <span class="err">??</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Drop the <strong>rows</strong> where the <code>id</code> is null:</p>
+<div>
+<i>Hint</i>: The `axis` for this is 0. After that, your pandas data frame should contain 74,186 rows.</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span> <span class="err">??</span> <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pdf now contains </span><span class="si">{</span><span class="n">pdf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows."</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Drop the <strong>rows</strong> where the geo-data is likely to be problematic:</p>
+<div>
+<i>Hint</i>: This will follow the same approach as dropping Null ids. After that, your pandas data frame should contain 74,184 rows.</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span> <span class="err">??</span> <span class="p">)</span>
+<span class="n">pdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span> <span class="err">??</span> <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pdf now contains </span><span class="si">{</span><span class="n">pdf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows."</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div>
+<i>Note</i>: <i>Not</i> doing the two steps above <a href="https://github.com/pygeos/pygeos/issues/231">led me to uncover a bug in PyGEOS</a> as I prepared your tutorial!</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 3.3: Checking Lat/Long<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-3.3:-Checking-Lat/Long">¶</a>
+</h4>
+<p>Before we mindlessly convert to something map-able it might make sense to sanity-check the data that's left as we <em>already</em> know that there were some NaN values in the lat/long coordinates. In GeoPandas we have a <code>total_bounds</code> method that gives us the bounding box for a GeoSeries, but how would we do that in Pandas?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The bottom-left corner is </span><span class="si">{</span><span class="err">??</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="err">??</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The top-right corner is </span><span class="si">{</span><span class="err">??</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="err">??</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Your answer should be:</p>
+
+<pre><code>The bottom-left corner is -0.49625, 51.29479
+The top-right corner is 0.2845, 51.68169</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 3.4: Embedding Web Maps<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-3.4:-Embedding-Web-Maps">¶</a>
+</h4>
+<p>This is more for the sake of demonstrating Python's features than because it's part of my workflow, but what the heck, let's do it! We will create and embed a zoomable web map in the notebook; to do <em>that</em> we need to:</p>
+<ol>
+<li>Calculate the bounds of the map using the min/max x and y coordinates above.</li>
+<li>Calculate the centroid of the map from the bounds.</li>
+<li>Set an appropriate zoom level.</li>
+</ol>
+<p>If your work is going well, perhaps you may also want to experiment with <a href="https://ipyleaflet.readthedocs.io/en/latest/api_reference/basemaps.html">different basemaps</a>.</p>
+<div>
+<i>Hint</i>: You can't use <tt>round</tt> here because it it could round up or down depending on what's closest and, consequently, cut off data on your map. So you'll have to look for two <i>other</i> functions that do this predictably (e.g. always rounding down, even if the value is 4.999999). However, those functions don't handle decimals like <tt>round</tt> does, so you need to think about how you could turn a number like 4.99 into a number that those functions <i>can</i> work with and then turn it <i>back</i> into the decimal...</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="err">??</span><span class="p">,</span> <span class="err">??</span>
+
+<span class="c1"># Calculate min and max to two decimal points</span>
+<span class="n">xmin</span> <span class="o">=</span> <span class="err">??</span>
+<span class="n">xmax</span> <span class="o">=</span> <span class="err">??</span>
+<span class="n">ymin</span> <span class="o">=</span> <span class="err">??</span>
+<span class="n">ymax</span> <span class="o">=</span> <span class="err">??</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
+
+<span class="c1"># Calculate the centre of the map</span>
+<span class="n">yctr</span> <span class="o">=</span> <span class="err">??</span>
+<span class="n">xctr</span> <span class="o">=</span> <span class="err">??</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">xctr</span><span class="p">,</span> <span class="n">yctr</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You should end up with <code>-0.5 0.29 51.29 51.69</code> for <code>print(xmin, xmax, ymin, ymax)</code>, and <code>51.4899999...</code> and <code>-0.109999...</code> for <code>yctr</code> and <code>xctr</code>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If you've managed the calculations above, then this code should simply run!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">ipyleaflet</span> <span class="kn">import</span> <span class="n">Map</span><span class="p">,</span> <span class="n">basemaps</span><span class="p">,</span> <span class="n">basemap_to_tiles</span><span class="p">,</span> <span class="n">Rectangle</span><span class="p">,</span> <span class="n">projections</span>
+
+<span class="c1"># Note the basemap can be easily changed</span>
+<span class="n">watercolor</span> <span class="o">=</span> <span class="n">basemap_to_tiles</span><span class="p">(</span><span class="n">basemaps</span><span class="o">.</span><span class="n">Stamen</span><span class="o">.</span><span class="n">Watercolor</span><span class="p">)</span>
+
+<span class="n">m</span> <span class="o">=</span> <span class="n">Map</span><span class="p">(</span><span class="n">layers</span><span class="o">=</span><span class="p">(</span><span class="n">watercolor</span><span class="p">,</span> <span class="p">),</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="n">yctr</span><span class="p">,</span> <span class="n">xctr</span><span class="p">),</span> <span class="n">zoom</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="n">rectangle</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="n">bounds</span><span class="o">=</span><span class="p">(</span> <span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">xmin</span><span class="p">),</span> <span class="p">(</span><span class="n">ymax</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span> <span class="p">),</span>
+    <span class="n">crs</span><span class="o">=</span><span class="n">projections</span><span class="o">.</span><span class="n">EPSG4326</span>
+<span class="p">)</span>
+
+<span class="n">m</span><span class="o">.</span><span class="n">add_layer</span><span class="p">(</span><span class="n">rectangle</span><span class="p">)</span>
+
+<span class="n">m</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Your map should look like this:</p>
+<p><img src="./68747470733a2f2f6769746875622e636f6d2f6a7265616465732f6932702f7261772f6d61737465722f70726163746963616c732f696d672f5374616d656e2e706e67" alt="" data-canonical-src="https://github.com/jreades/i2p/raw/master/practicals/img/Stamen.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 3.5: Lat/Long to GeoSeries<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-3.5:-Lat/Long-to-GeoSeries">¶</a>
+</h4>
+<p>Right, we're finally there! We need to convert our coordinates into some kind of geo-data. GeoPandas offers two ways to do this: the original way using <code>zip</code> and a new utility method called <code>points_from_xy</code>. Here's the old way:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">Point</span>
+<span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> 
+                <span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">Longitude</span><span class="p">,</span><span class="n">df</span><span class="o">.</span><span class="n">Latitude</span><span class="p">)])</span>
+</pre></div>
+<p>Note, however, that this did not automatically set a projection, unlike the new approach with the helper method:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> 
+      <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s1">'longitude'</span><span class="p">],</span> <span class="n">pdf</span><span class="p">[</span><span class="s1">'latitude'</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="s1">'epsg:4326'</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">gdf</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># Print out the object's contents</span>
+<span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># The object knows how to print itself as a point</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 3.6: Saving Geo-Data Locally<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-3.6:-Saving-Geo-Data-Locally">¶</a>
+</h4>
+<p>Since there are <em>many</em> formats in which to save geo-data, rather than have multiple <code>to_format_x</code> methods, GeoPandas has <em>one</em> for local files (<code>to_file</code>) and requires you to specify a <code>driver</code> as part of the process. For educational purposes, try running the code below <em>without</em> specifying a driver and then have a look at what has happened on your hard drive... then delete that output and re-run the code <em>with</em> an appropriate driver. Google this if necessary.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">boros</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">'test.gpkg'</span><span class="p">)</span> <span class="c1"># This won't do what we want</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Save the InsideAirbnb GeoDataFrame to the 'geo' directory:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div>
+<i>Hint</i>: It's worth comparing the output of a point (above) with the output of a polygon or multi-polygon below. You may well come across data in formats resembling both of these in real data sets but they <i>can</i> be read as well.</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">boros</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">])[:</span><span class="mi">399</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"..."</span><span class="p">)</span> <span class="c1"># Object to string then print out first 399 characters</span>
+<span class="n">boros</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># So this is a multi-polygon boundary</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>So each element of this Series has text indicating the type of shape the geometry applies to (e.g. <em>POLYGON</em>) followed by a bunch of numbers. These numbers are truncated here just to make things a little more legible.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>4. Dealing with Projections and Data<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#4.-Dealing-with-Projections-and-Data">¶</a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 4.1: Reprojection<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-4.1:-Reprojection">¶</a>
+</h4>
+<p>Let's start by looking at our InsideAirbnb data in its original projection.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">)</span>
+<span class="n">gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'*'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'green'</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Reproject this into the OSGB1936/BNG CRS and plot again using same code as above:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 4.2: Choropleth Mapping<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-4.2:-Choropleth-Mapping">¶</a>
+</h4>
+<p>In its original form, the pricing data will not reveal much of interest because of the range of the data. However, if we take the log of the price data then we may get something of a useful choropleth. That said, if you intend to make use of the pricing data I would suggest that you do some exploration of the outliers, especially the upper ones!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The range of price is $</span><span class="si">{</span><span class="err">??</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2"> to $</span><span class="si">{</span><span class="err">??</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The mean and median of the price are $</span><span class="si">{</span><span class="err">??</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2"> and $</span><span class="si">{</span><span class="err">??</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Notice the neat little commad-separated thousands in there? That's fairly easy to do in English, but to use a thousands separator common to another language you would need to do something <a href="https://stackoverflow.com/questions/13082620/how-can-i-print-a-float-with-thousands-separators">a little more tricky</a>.</p>
+<p>Anyway, I'd like you to:</p>
+<ol>
+<li>Take the natural-log of the price and assign to a new Series called <code>lnprice</code>.</li>
+<li>Work out what the error means.</li>
+<li>Work out how to fix the error based on what we did above.</li>
+<li>Work out how many rows were affected.</li>
+<li>Report on the new min/max values.</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You should get that the ln(price) range is 1.95 to 9.83 and the number of rows is 74,178.</p>
+<p>Now plot the ln(price) as a choropleth using:</p>
+<ol>
+<li>A figure size of 12 x 8</li>
+<li>A marker size of 0.25</li>
+<li>The Viridis colourmap</li>
+<li>A legend</li>
+<li>A legend label of 'Natural Log of Price per Night ($)'</li>
+</ol>
+<p>I'd suggest <a href="https://geopandas.org/mapping.html">referring to the documentation</a>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Your map should look something like this:</p>
+<p><img src="./68747470733a2f2f6769746875622e636f6d2f6a7265616465732f6932702f7261772f6d61737465722f70726163746963616c732f696d672f416972626e622d6c6e70726963652e706e67" alt="" data-canonical-src="https://github.com/jreades/i2p/raw/master/practicals/img/Airbnb-lnprice.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 4.3: Zooming In/Out<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-4.3:-Zooming-In/Out">¶</a>
+</h4>
+<p>That's a little hard to see, let's try zooming in on Central London! Very roughly, let's call that an Easting range of 525,000 to 535,000 and a Northing range of 178,000 to 185,000.</p>
+<div>
+<i>Hint</i>: You will need to remember that <tt>GeoDataFrame.plot()</tt> returns an axis object.</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="./68747470733a2f2f6769746875622e636f6d2f6a7265616465732f6932702f7261772f6d61737465722f70726163746963616c732f696d672f416972626e622d6c6e70726963652d7a6f6f6d2e706e67" alt="" data-canonical-src="https://github.com/jreades/i2p/raw/master/practicals/img/Airbnb-lnprice-zoom.png"></p>
+<p>That's a little better, but ideally we'd do a lot more thinking about outliers...</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 4.4: Recall!<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-4.4:-Recall!">¶</a>
+</h4>
+<p>Remeber that GeoPandas <em>inherits</em> functionality from Pandas. First, let's check what data type <code>gdf</code> is using the <a href="https://www.w3schools.com/python/ref_func_isinstance.asp"><code>isinstance</code></a> function:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span> <span class="c1"># Is gdf a GeoDataFrame object?</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">I'm a geopandas data frame!"</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span> <span class="c1"># Is gdf *also* a DataFrame object?</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">I'm also a pandas data frame!"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In which case we can...</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">gdf</span><span class="o">.</span><span class="n">price</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">box</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">gdf</span><span class="o">.</span><span class="n">lnprice</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">box</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 4.5: Changing the Classification Scheme<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-4.5:-Changing-the-Classification-Scheme">¶</a>
+</h4>
+<p>Let's give this one last try using a different classification scheme... such as Fisher-Jenks!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4>Task 4.6: Bringing it All Together<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Task-4.6:-Bringing-it-All-Together">¶</a>
+</h4>
+<p>And just to give a bit of a show of how we can put it all together:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">help</span><span class="p">(</span><span class="n">legendgram</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pysal</span> <span class="k">as</span> <span class="nn">p</span>
+<span class="kn">import</span> <span class="nn">mapclassify</span> <span class="k">as</span> <span class="nn">mc</span>
+<span class="kn">import</span> <span class="nn">palettable.matplotlib</span> <span class="k">as</span> <span class="nn">palmpl</span>
+<span class="kn">from</span> <span class="nn">legendgram</span> <span class="kn">import</span> <span class="n">legendgram</span>
+
+<span class="n">q</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Quantiles</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">price</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="c1"># For Fisher Jenks you may want 'Sampled' to speed things up</span>
+
+<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">9</span><span class="p">))</span>
+<span class="n">water</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">edgecolor</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'xkcd:lightblue'</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">green</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">edgecolor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.14</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.14</span><span class="p">),</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">'price'</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="s1">'Quantiles'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> 
+         <span class="n">cmap</span><span class="o">=</span><span class="s1">'viridis'</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'*'</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">boros</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">edgecolor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'none'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="mi">525000</span><span class="p">,</span><span class="mi">540000</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">176000</span><span class="p">,</span><span class="mi">186000</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">'off'</span><span class="p">)</span> <span class="c1">#don't plot the axes (bounding box)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'London Airbnb Listings Price Per Night'</span><span class="p">,</span> <span class="n">fontdict</span><span class="o">=</span><span class="p">{</span><span class="s1">'fontsize'</span><span class="p">:</span><span class="s1">'20'</span><span class="p">,</span> <span class="s1">'fontweight'</span><span class="p">:</span><span class="s1">'3'</span><span class="p">})</span>  <span class="c1">#provide a title</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">'Source: InsideAirbnb (2020)'</span><span class="p">,</span>
+             <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">0.905</span><span class="p">,</span> <span class="mf">0.055</span><span class="p">),</span> <span class="n">xycoords</span><span class="o">=</span><span class="s1">'figure fraction'</span><span class="p">,</span> 
+             <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">'right'</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">'bottom'</span><span class="p">,</span> 
+             <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#555555'</span><span class="p">)</span>  <span class="c1">#add source info on the image itself</span>
+<span class="n">a</span><span class="o">.</span><span class="n">set_bbox</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Price Per Night"</span><span class="p">)</span>  <span class="c1">#set the legend title</span>
+
+<span class="n">legendgram</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> 
+            <span class="n">gdf</span><span class="o">.</span><span class="n">price</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">bins</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">price</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">/</span><span class="mi">25</span><span class="p">),</span>
+            <span class="n">pal</span><span class="o">=</span><span class="n">palmpl</span><span class="o">.</span><span class="n">Viridis_5</span><span class="p">,</span>
+            <span class="n">legend_size</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> 
+            <span class="n">loc</span><span class="o">=</span><span class="s1">'lower left'</span><span class="p">,</span>
+            <span class="n">clip</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">750</span><span class="p">),</span>
+            <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+<span class="n">f</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">'ppn.png'</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You should have something like this:</p>
+<p><img src="./68747470733a2f2f6769746875622e636f6d2f6a7265616465732f6932702f7261772f6d61737465722f70726163746963616c732f696d672f416972626e622d70726963652d616c6c2e706e67" alt="" data-canonical-src="https://github.com/jreades/i2p/raw/master/practicals/img/Airbnb-price-all.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>I'll be honest, I do find ggplot easier for making good-quality; this <em>is</em> more customisable overall, but it's also much more 'magical' in the sense of 'search for <code>matplotlib</code> examples that do what you want then copy+paste them and tweak' being the main way that most people get things working how they want.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Scalebars are awkward, though I did discover that there's now a library that can help with this <a href="https://github.com/ppinard/matplotlib-scalebar">on GitHub</a>. Unfortunately, as this is not part of the default image, while you <em>can</em> install it on a per-session basis you will lose it each time you restart Vagrant/Docker.</p>
+<div>
+<i>Hint</i>: You can find a lot of _possible_ solutions in <a href="https://stackoverflow.com/questions/32333870/how-can-i-show-a-km-ruler-on-a-cartopy-matplotlib-plot">this Stackoverflow thread</a> that <i>should</i> work without needing to install new libraries but I've not had a chance to test them each individually. You would undoubtedly want to put this in an external package and import it when needed rather than paste this code into every file. But you might find it easier to <i>test</i> the solutions by pasting. If you're looking for glory (and my gratitude) then working out which of these is most generalisable (i.e. would work with both lat/long <i>and</i> OSGB coordinates) would be quite the challenge!</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3>Getting More Help/Applications<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Getting-More-Help/Applications">¶</a>
+</h3>
+<p>A great resource for more help and more examples is Dani Arribas-Bel's <em>Geographic Data Science</em> module: he has put all of his <a href="http://darribas.org/gds17/">module practicals online</a> (as we have too), and you might find that something that he does makes more sense to you than what we've done... check it out!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>Credits!<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Credits!">¶</a>
+</h2>
+<h4>Contributors:<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Contributors:">¶</a>
+</h4>
+<p>The following individuals have contributed to these teaching materials: Jon Reades (jonathan.reades@kcl.ac.uk), James Millington (james.millington@kcl.ac.uk)</p>
+<h4>License<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#License">¶</a>
+</h4>
+<p>These teaching materials are licensed under a mix of <a href="https://opensource.org/licenses/mit-license.php">The MIT License</a> and the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 license</a>.</p>
+<h4>Acknowledgements:<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Acknowledgements:">¶</a>
+</h4>
+<p>Supported by the <a href="https://www.rgs.org/HomePage.htm">Royal Geographical Society</a> (with the Institute of British Geographers) with a Ray Y Gildea Jr Award.</p>
+<h4>Potential Dependencies:<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=6884494b03b3e32fc35508fa42131f34a765cd92&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6a7265616465732f6932702f363838343439346230336233653332666333353530386661343231333166333461373635636439322f70726163746963616c732f50726163746963616c2d30362d5370617469616c5f446174612e6970796e62&amp;nwo=jreades%2Fi2p&amp;path=practicals%2FPractical-06-Spatial_Data.ipynb&amp;repository_id=292512340&amp;repository_type=Repository#Potential-Dependencies:">¶</a>
+</h4>
+<p>This notebook may depend on the following libraries: pandas, matplotlib, seaborn</p>
+
+</div>
+</div>
+</div>
+ 
+
+</div>
+
+  </div>
+
+  
+
+
+
+</body></html>
