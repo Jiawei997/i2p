@@ -13,6 +13,7 @@ library(tidyverse)
 library(fs)
 library(geosphere)
 library(dplyr)
+library(spdep)
 #-------------------ethnic block
 block_ethnic <- st_read(here::here("data", "us-census", "ethnic","detroit-census-block",
                                      "acs2019_5yr_B03002_15000US261635154002.shp"))
@@ -132,7 +133,7 @@ accessibility_block<-left_join(block_ethnic,access,by = c("geoid" = "Name"))
 #---------------------visualization
 library(RColorBrewer)
 display.brewer.all()
-breaks = c(0, 500, 1000, 2000, 4000, 5000)
+breaks = c(0, 500, 1000, 2000, 5000, 7000)
 
 tmap_mode("plot")
 
@@ -149,12 +150,19 @@ tm1
 #=====================social-economic data processing===========================
 
 #racial 
+
+block_ethnic[is.na(block_ethnic)] <- 0
+
 racial <- block_ethnic %>%
   mutate(black_percentage=block_ethnic$B03002004/block_ethnic$B03002001*100)%>%
   mutate(white_percentage=block_ethnic$B03002003/block_ethnic$B03002001*100)%>%
   mutate(hispanic_percentage=block_ethnic$B03002012/block_ethnic$B03002001*100)
 
+racial[is.na(racial)] <- 0
+
 #income
+block_wealth[is.na(block_wealth)] <- 0
+
 income <-block_wealth
 
 income$Less_than_30k <-(block_wealth$B19001002+block_wealth$B19001003+
@@ -169,7 +177,10 @@ income$Within_50k_100k <-(block_wealth$B19001011+block_wealth$B19001012+
 income$Over_100k <-(block_wealth$B19001014+block_wealth$B19001015+
                            block_wealth$B19001016+block_wealth$B19001017)/block_wealth$B19001001*100
 
+income[is.na(income)] <- 0
 #education
+block_edu[is.na(block_edu)] <- 0
+
 education <-block_edu %>%
   mutate(No_degree=(.$B15002003+.$B15002004+.$B15002005+.$B15002006+.$B15002007+.$B15002008+.$B15002009+.$B15002010
          +.$B15002020+.$B15002020+.$B15002021+.$B15002022+.$B15002023+.$B15002024+.$B15002025+.$B15002026+.$B15002027)/.$B15002001*100)%>%
@@ -178,34 +189,238 @@ education <-block_edu %>%
   
   mutate(College_and_higher_degree=(.$B15002015+.$B15002016+.$B15002017+.$B15002018+.$B15002032+.$B15002033+.$B15002034+.$B15002035)/.$B15002001*100)
 
+education[is.na(education)] <- 0
 #------------------------------classification 
 
 #racial
 race_th=75
 
-socio_economic<-racial[,c(1,24:26)]
+socio_economic<-racial[,c(1,24:26)]%>%
+  st_drop_geometry()
 
 socio_economic$racial_group=case_when(
-  socio_economic$black_percentage > race_th ~"Black",
-  socio_economic$white_percentage > race_th ~"White",
-  socio_economic$hispanic_percentage > race_th ~"Hispanic",
+  socio_economic$black_percentage > race_th ~1,#Black
+  socio_economic$white_percentage > race_th ~2,#White
+  socio_economic$hispanic_percentage > race_th ~3,#Hispanic
   socio_economic$hispanic_percentage < race_th & socio_economic$white_percentage < race_th &
-    socio_economic$black_percentage < race_th ~ "Racial mixed"
+    socio_economic$black_percentage < race_th ~ 4#Racial mixed
 )
 
 #education
-edu_th=50
-
-socio_economic<-education[,c(1,38:40)]
+class(education[,c(1,38:40)])
 
 socio_economic<-left_join(socio_economic,education[,c(1,38:40)],by = c("geoid" = "geoid"))
 
 socio_economic$educational_attainment=case_when(
-  socio_economic$No_degree > socio_economic$Highschool_gra & socio_economic$College_and_higher_degree ~"No_degree",
-  socio_economic$white_percentage > race_th ~"White",
-  socio_economic$hispanic_percentage > race_th ~"Hispanic",
-  socio_economic$hispanic_percentage < race_th&socio_economic$white_percentage < race_th&
-    socio_economic$black_percentage < race_th~ "Racial mixed"
+  socio_economic$No_degree >= socio_economic$Highschool_gra & 
+    socio_economic$No_degree> socio_economic$College_and_higher_degree ~1,#"No_degree"
+  
+  socio_economic$Highschool_gra > socio_economic$No_degree & 
+    socio_economic$Highschool_gra >= socio_economic$College_and_higher_degree ~2,#"Highschool_degree"
+  
+  socio_economic$College_and_higher_degree > socio_economic$Highschool_gra & 
+    socio_economic$College_and_higher_degree > socio_economic$No_degree ~3,#"College_and_higher_degree"
 )
+#income
+class(socio_economic)
+
+socio_economic<-left_join(socio_economic,income[,c(1,20:23)],by = c("geoid" = "geoid"))
+
+socio_economic$household_income=case_when(
+  
+  socio_economic$Less_than_30k >=socio_economic$Within_30k_50k & 
+    socio_economic$Less_than_30k> socio_economic$Within_50k_100k &
+    socio_economic$Less_than_30k> socio_economic$Over_100k ~ 1,#"Less_than_30k"
+  
+  socio_economic$Within_30k_50k > socio_economic$Less_than_30k & 
+    socio_economic$Within_30k_50k>=socio_economic$Within_50k_100k &
+    socio_economic$Within_30k_50k> socio_economic$Over_100k ~ 2,#"Within_30k_50k"
+  
+  socio_economic$Within_50k_100k > socio_economic$Within_30k_50k & 
+    socio_economic$Within_50k_100k> socio_economic$Less_than_30k &
+    socio_economic$Within_50k_100k>=socio_economic$Over_100k ~ 3,#"Within_50k_100k"
+  
+  socio_economic$Over_100k > socio_economic$Within_30k_50k & 
+    socio_economic$Over_100k> socio_economic$Within_50k_100k &
+    socio_economic$Over_100k> socio_economic$Less_than_30k ~ 4,#"Over_100k"
+  
+)
+#accessibility
+
+socio_economic<-left_join(socio_economic,accessibility_block[,c(1,24:26)],by = c("geoid" = "geoid"))
+
+class(socio_economic)
+socio_economic[is.na(socio_economic)] <- 0
+#--------------------Visualization
+break_distance=c(800,1500,2500,7000)
+breaks=c(0,1.5,2.5,3.5,4.5)
+socio_economic<-sf::st_as_sf(socio_economic, crs = 3078)
+
+socio_economic <- sf::st_transform(socio_economic,"+proj=longlat +datum=WGS84")
+
+class(socio_economic)
+st_crs(socio_economic)
+
+popupracial_group <-socio_economic %>%
+  st_drop_geometry()%>%
+  dplyr::select(racial_group, geoid)%>%
+  popupTable()
+
+popupeducation <-socio_economic %>%
+  st_drop_geometry()%>%
+  dplyr::select(educational_attainment, geoid)%>%
+  popupTable()
+
+popuphousehold_income <-socio_economic %>%
+  st_drop_geometry()%>%
+  dplyr::select(household_income, geoid)%>%
+  popupTable()
+
+popupdistance <-socio_economic %>%
+  st_drop_geometry()%>%
+  dplyr::select(distance, geoid)%>%
+  popupTable()
+
+tmap_mode("view")
+
+pal1 <- socio_economic %>%
+  colorBin(palette = "YlOrRd", domain=.$racial_group,bin=breaks)
+
+pal2 <- socio_economic %>%
+  colorBin(palette = "YlOrRd", domain=.$educational_attainment,bin=breaks)
+
+pal3 <- socio_economic %>%
+  colorBin(palette = "YlOrRd", domain=.$household_income,bin=breaks)
+
+pal4 <- socio_economic %>%
+  colorBin(palette = "YlOrRd", domain=.$distance, bin=break_distance)
+
+map<- leaflet(socio_economic) %>%
+  # add basemap options
+  addTiles(group = "OSM (default)") %>%
+  addProviderTiles(providers$Stamen.Toner, group = "Toner") %>%
+  addProviderTiles(providers$Stamen.TonerLite, group = "Toner Lite") %>%
+  addProviderTiles(providers$CartoDB.Positron, group = "CartoDB")%>%
+  
+  #add our polygons, linking to the tables we just made
+  addPolygons(color="white", 
+              weight = 2,
+              opacity = 1,
+              dashArray = "3",
+              popup = popupracial_group,
+              fillOpacity = 0.7,
+              fillColor = ~pal1(racial_group),
+              group = "racial_group")%>%
+  
+  addPolygons(fillColor = ~pal2(educational_attainment), 
+              weight = 2,
+              opacity = 1,
+              color = "white",
+              dashArray = "3",
+              popup = popupeducation,
+              fillOpacity = 0.7,group = "educational_attainment")%>%
+  addPolygons(fillColor = ~pal3(household_income), 
+              weight = 2,
+              opacity = 1,
+              color = "white",
+              dashArray = "3",
+              popup = popuphousehold_income,
+              fillOpacity = 0.7,group = "household_income")%>%
+  # add a legend
+  addLegend(pal = pal1, values = ~ educational_attainment, group = c("racial_group","educational_attainment","household_income"), 
+            position ="bottomleft", title = "healthy food accessibility") %>%
+  # specify layers control
+  addLayersControl(
+    baseGroups = c("OSM (default)", "Toner", "Toner Lite", "CartoDB"),
+    overlayGroups = c("racial_group", "educational_attainment","household_income"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+
+# plot the map
+map
+#-----------------------------plot
+tmap_mode("plot")
+
+breaks=c(0,800,1500,3500,7000)
+tm1 <- tm_shape(socio_economic) + 
+  tm_polygons("distance", 
+              breaks=breaks,
+              palette="Blues")+
+  tm_legend(show=TRUE)+
+  tm_layout(frame=FALSE)+
+  tm_credits("(a)", position=c(0,0.85), size=1.5)
+
+tm1
+
+breaks=c(0,1.5,2.5,3.5,4.5)
+tm2 <- tm_shape(socio_economic) + 
+  tm_polygons("racial_group", 
+              breaks=breaks,
+              palette="Blues")+
+  tm_legend(show=TRUE)+
+  tm_layout(frame=FALSE)+
+  tm_credits("(a)", position=c(0,0.85), size=1.5)
+
+tm2
+
+breaks=c(0,1.5,2.5,3.5,4.5)
+tm3 <- tm_shape(socio_economic) + 
+  tm_polygons("household_income", 
+              breaks=breaks,
+              palette="Blues")+
+  tm_legend(show=TRUE)+
+  tm_layout(frame=FALSE)+
+  tm_credits("(a)", position=c(0,0.85), size=1.5)
+
+tm3
+
+breaks=c(0,1.5,2.5,3.5)
+tm4 <- tm_shape(socio_economic) + 
+  tm_polygons("educational_attainment", 
+              breaks=breaks,
+              palette="Blues")+
+  tm_legend(show=TRUE)+
+  tm_layout(frame=FALSE)+
+  tm_credits("(a)", position=c(0,0.85), size=1.5)
+tm4
+
+legend <- tm_shape(socio_economic) + 
+  tm_polygons("distance",
+              palette="PuBu") +
+  tm_scale_bar(position=c(0.2,0.04), text.size=0.6)+
+  tm_compass(north=0, position=c(0.65,0.6))+
+  tm_layout(legend.only = TRUE, legend.position=c(0.2,0.25),asp=0.1)+
+  tm_credits("(c) OpenStreetMap contrbutors and Air b n b", position=c(0.0,0.0))
+
+t=tmap_arrange(tm1,tm2,tm3,tm4,  ncol=2)
+
+t
+#--------------------------hot spot analysis
+
+
+
+socio_economic<-sf::st_as_sf(socio_economic)%>%
+  st_transform(3078)
+
+socio_economic1_sp <- sf:::as_Spatial(socio_economic$geometry)
+
+W_cont_el<-poly2nb(socio_economic1_sp,queen=T)
+
+W_cont_el_mat <- nb2listw(W_cont_el, style="W", zero.policy=TRUE)
+
+#socio_economic1_sp<-st_transform(socio_economic1_sp, CRS("+init=EPSG:3078"))
+proj4string(socio_economic1_sp) <- CRS("+init=EPSG:3078")
+
+socio_economic1_sp <- spTransform(socio_economic1_sp, CRS("+init=EPSG:3078"))
+
+lg1 <- localG(socio_economic1_sp$distance, listw=W_cont_el_mat, zero.policy=T)
+
+socio_economic1_sp$lg1 <- lg1[]
+
+lm.palette <- colorRampPalette(c("blue","white", "red"), space = "rgb")
+
+spplot(socio_economic1_sp, zcol="lg1", col.regions=lm.palette(20), main="Getis-Ord Gi* (z scores)", pretty=T)
+
+
 
 
